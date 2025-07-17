@@ -285,6 +285,8 @@ def get_bugs(): # a list with all bugs from db will be visible, along with filte
         query = query.filter_by(status=bugs_filter)
     elif bugs_filter=="Closed":
         query = query.filter_by(status=bugs_filter)
+    elif bugs_filter=="In Progress":
+        query = query.filter_by(status=bugs_filter)
 
     if sort_order == "asc":
         query = query.order_by(Bug.bug_code.asc())
