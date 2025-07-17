@@ -43,7 +43,7 @@
     <select name="status" id="status" class="styled-select">
       <option value="">All</option>
       {% for st in statuses %}
-        <option value="{{ title }}" {% if request.args.get('status') == st %}selected{% endif %}>{{ st }}</option>
+        <option value="{{ st }}" {% if request.args.get('status') == st %}selected{% endif %}>{{ st }}</option>
       {% endfor %}
     </select>
 
