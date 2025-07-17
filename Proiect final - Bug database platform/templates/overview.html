@@ -107,8 +107,22 @@
                 <li>Software Developers: {{ users["Software Developer"] }}</li>
             </ul>
             <div class="total">Total: {{ totals.users }}</div>
-        </div>
+        </div>      
     </div>
+
+    <h2>Visual Overview</h2>
+    <div class="dashboard">
+        <div class="card">
+            <h3>Projects bar chart</h3>
+            <img src="data:image/png;base64,{{ project_chart }}" alt="Projects" style="width:50%;">
+        </div>
+        <div class="card">
+            <h3>Bugs bar chart</h3>
+            <img src="data:image/png;base64,{{ bug_chart }}" alt="Bugs" style="width:50%;">
+        </div>
+
+    </div>
+
 </body>
 </html>
 
