@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bugsy - The smart way to squash bugs</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header>
+    <div class="logo">
+  <img src="{{ url_for('static', filename='bugsy-logo.PNG') }}" alt="Bugsy logo" class="logo-img">
+  <strong>Bugsy</strong>
+</div>
+
+  </header>
+
+  <main>
+    <h1>The smart way to squash bugs and run projects</h1>
+    <p>Bugsy helps your team stay organized and focused.</p>
+    <div class="buttons">
+      <a href="{{ url_for('overview') }}" class="primary">Get Started</a>
+    </div>
+  </main>
+</body>
+</html>

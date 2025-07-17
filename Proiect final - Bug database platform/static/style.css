@@ -1,0 +1,62 @@
+
+body {
+  margin: 100px;
+  padding: 100px;
+  font-family: sans-serif;
+  background: #f9f9fb;
+  color: #333;
+  text-align: center;
+}
+
+/* Center the logo horizontally */
+.logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 4rem;
+  margin-bottom: 3rem;
+}
+
+/* Optional: remove margin-bottom if you want it more centered vertically */
+/* Or use flex on body if full-page vertical + horizontal centering is needed */
+
+.logo-img {
+  width: 55px;
+  height: 55px;
+}
+
+nav a {
+  margin: 0 1rem;
+  text-decoration: none;
+  color: #444;
+}
+
+h1 {
+  font-size: 2.5rem;
+  margin: 1rem 0;
+}
+
+p {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+}
+
+.buttons a {
+  display: inline-block;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  font-weight: bold;
+  text-decoration: none;
+  margin: 0.5rem;
+}
+
+.primary {
+  background: #7f5af0;
+  color: #fff;
+}
+
+.secondary {
+  border: 2px solid #7f5af0;
+  color: #7f5af0;
+}

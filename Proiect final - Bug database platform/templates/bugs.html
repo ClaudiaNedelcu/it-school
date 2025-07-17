@@ -1,0 +1,452 @@
+{% extends "base.html" %}
+
+{% block content %}
+<header class="hero">
+  <h1>Bugs</h1>
+  <p>Here you can track and resolve bugs effectively.</p>
+</header>
+
+<html>
+<body>
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="flash-messages">
+      {% for category, message in messages %}
+        <div class="flash flash-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+
+    <div class="tabs">
+
+    <!-- Radio Buttons (Hidden) -->
+    <input type="radio" name="tab" id="tab1" {% if active_tab != 'add' %}checked{% endif %}>
+    <input type="radio" name="tab" id="tab2" {% if active_tab == 'add' %}checked{% endif %}>
+    <input type="radio" name="tab" id="tab3">
+    <input type="radio" name="tab" id="tab4">
+
+    <!-- Tab Labels -->
+    <div class="tab-labels">
+        <label for="tab1">Bugs List</label>
+        <label for="tab2">Add Bugs</label>
+        <label for="tab3">Update Bugs</label>
+        <label for="tab4">Delete Bugs</label>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="tab-content" id="content1">
+<div class="filter-sort-bar">
+  <form method="GET" action="{{ url_for('bugs') }}" class="filter-form">
+    <label for="status">Filter by Status:</label>
+    <select name="status" id="status" class="styled-select">
+      <option value="">All</option>
+      {% for st in statuses %}
+        <option value="{{ title }}" {% if request.args.get('status') == st %}selected{% endif %}>{{ st }}</option>
+      {% endfor %}
+    </select>
+
+    <label for="sort">Sort by Bug code:</label>
+    <select name="sort" id="sort" class="styled-select">
+      <option value="">None</option>
+      <option value="asc" {% if request.args.get('sort') == 'asc' %}selected{% endif %}>A-Z</option>
+      <option value="desc" {% if request.args.get('sort') == 'desc' %}selected{% endif %}>Z-A</option>
+    </select>
+
+    <input type="submit" value="Apply">
+  </form>
+
+ <form method="GET" action="{{ url_for('export_bugs') }}" style="display: inline;">
+  {% if request.args.get('status') %}
+    <input type="hidden" name="status" value="{{ request.args.get('status') }}">
+  {% endif %}
+  {% if request.args.get('sort') %}
+    <input type="hidden" name="sort" value="{{ request.args.get('sort') }}">
+  {% endif %}
+  <input type="submit" value="Export CSV">
+</form>
+
+</div>
+
+        <table class="bug-table" cellpadding="1" cellspacing="1">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Bug Code</th>
+            <th>Status</th>
+            <th>Priority</th>
+            <th>Defect Clasification</th>
+            <th>Defect Origin</th>
+        </tr>
+    </thead>
+    <tbody>
+
+        {% for bug in bugs %}
+        <tr>
+            <td>{{ bug.id_Bug }}</td>
+            <td>{{ bug.bug_code }}</td>
+            <td>{{ bug.status }}</td>
+            <td>{{ bug.priority }}</td>
+            <td>{{ bug.defect_clasification }}</td>
+            <td>{{ bug.defect_origin }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+        {% if error %}
+            <div class="error-message">{{ error }}</div>
+        {% endif %}
+    </div>
+
+    <div class="tab-content" id="content2">
+    <div class="form-wrapper">
+        <form method="POST" action="/bugs/add">
+            <label>Bug code:</label>
+            <input type="text" name="bug_code" required>
+
+            <label>Status:</label>
+            <select name="status" class="styled-select" required>
+                <option value="" disabled selected></option>
+                <option value="Open">Open</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Closed">Closed</option>
+            </select>
+
+            <label>Priority:</label>
+            <select name="priority" class="styled-select" required>
+                <option value="" disabled selected></option>
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+            </select>
+
+            <label>Defect Clasification:</label>
+            <select name="defect_clasification" class="styled-select" required>
+                <option value="" disabled selected></option>
+                <option value="Latent">Latent</option>
+                <option value="New Development">New Development</option>
+                <option value="Sprint Regression">Sprint Regression</option>
+            </select>
+
+            <label>Defect Origin:</label>
+            <select name="defect_origin" class="styled-select" required>
+                <option value="" disabled selected></option>
+                <option value="Internal">Internal</option>
+                <option value="Client">Client</option>
+                <option value="Regression">Regression</option>
+            </select>
+
+            <input type="submit" value="Add bug">
+
+            {% if error %}
+            <div class="error-message">{{ error }}</div>
+            {% endif %}
+        </form>
+    </div>
+    </div>
+
+
+    <!-- Tab 3: Update Bug -->
+   <div class="tab-content" id="content3">
+    <div class="form-wrapper">
+        <form method="POST" action="/bugs/update">
+            <label>Bug to update:</label>
+            <select name="bug_code" class="styled-select" required>
+            <option value="" disabled selected>Choose a bug</option>
+            {% for bug in bugs %}
+                <option value="{{ bug.bug_code }}">{{ bug.bug_code }} ({{ bug.status}})</option>
+            {% endfor %}
+                </select>
+
+            <label>Status:</label>
+            <select name="status" class="styled-select">
+                <option value="" disabled selected></option>
+                <option value="Open">Open</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Closed">Closed</option>
+            </select>
+
+            <label>Priority:</label>
+            <select name="priority" class="styled-select">
+                <option value="" disabled selected></option>
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+            </select>
+
+
+            <label>Defect Clasification:</label>
+            <select name="defect_clasification" class="styled-select">
+                <option value=" " > </option>
+                <option value="Latent">Latent</option>
+                <option value="New Development">New Development</option>
+                <option value="Sprint Regression">Sprint Regression</option>
+            </select>
+
+            <label>Defect Origin:</label>
+            <select name="defect_origin" class="styled-select">
+                <option value=" " > </option>
+                <option value="Internal">Internal</option>
+                <option value="Client">Client</option>
+                <option value="Regression">Regression</option>
+            </select>
+
+            <input type="submit" value="Update Bug">
+            {% if error %}
+            <div class="error-message">{{ error }}</div>
+            {% endif %}
+        </form>
+    </div>
+    </div>
+
+  <!-- Tab 4: Delete Bug -->
+  <div class="tab-content" id="content4">
+    <div class="form-wrapper">
+      <form method="POST" action="/bugs/delete">
+        <label for="bug_code">Select bug to delete:</label>
+        <select name="bug_code" class="styled-select" required>
+        <option value="" disabled selected>Choose a bug</option>
+        {% for bug in bugs %}
+            <option value="{{ bug.bug_code }}">{{ bug.bug_code }} ({{ bug.status }})</option>
+        {% endfor %}
+            </select>
+        <input type="submit" value="Delete Bug">
+
+        {% if error %}
+          <div class="error-message">{{ error }}</div>
+        {% endif %}
+
+        {% if success_message %}
+          <div class="success-message">{{ success_message }}</div>
+        {% endif %}
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+</html>
+
+
+<style>
+    .tabs input[type="radio"] {
+        display: none;
+    }
+
+    .tab-labels {
+        margin-bottom: 10px;
+    }
+
+    .tab-labels label {
+        padding: 10px 15px;
+        background: #dcd8e2;
+        border: 1px solid #ccc;
+        cursor: pointer;
+        margin-right: 5px;
+        border-radius: 5px 5px 0 0;
+    }
+
+    .tab-labels label:hover {
+        background: #ddd;
+    }
+
+    .tab-content {
+        display: none;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-top: 1px solid #ccc;
+        background-color: white;
+        border-radius: 0 5px 5px 5px;
+    }
+
+    #tab1:checked ~ .tab-labels label[for="tab1"],
+    #tab2:checked ~ .tab-labels label[for="tab2"],
+    #tab3:checked ~ .tab-labels label[for="tab3"],
+    #tab4:checked ~ .tab-labels label[for="tab4"] {
+        background: #fff;
+        border-bottom: 1px solid #fff;
+    }
+
+    #tab1:checked ~ #content1,
+    #tab2:checked ~ #content2,
+    #tab3:checked ~ #content3,
+    #tab4:checked ~ #content4 {
+        display: block;
+    }
+
+    input[type="text"], input[type="submit"] {
+        padding: 8px;
+        margin-top: 5px;
+        margin-bottom: 10px;
+        width: 100%;
+        max-width: 300px;
+    }
+
+    input[type="submit"] {
+        background-color: #a98ae2;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    input[type="submit"]:hover {
+        background-color: #825dc7;
+    }
+
+   .bug-table {
+  width: 80%;
+  margin: 2rem auto;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+  text-align: left;
+    }
+
+    .bug-table thead {
+  background-color: #a98ae2;
+  text-align: left;
+    }
+
+    .bug-table th, .bug-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #e0e0e0;
+    }
+
+    .bug-table tr:hover {
+  background-color: #f0f0f0;
+    }
+
+    .bug-table th {
+  font-weight: 600;
+  color: #333;
+    }
+
+    .bug-table td {
+  color: #555;
+    }
+
+select.styled-select {
+    padding: 8px;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    width: 100%;
+    max-width: 300px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+    font-size: 14px;
+    color: #333;
+    appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg fill='gray' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+    background-repeat: no-repeat;
+    background-position-x: 95%;
+    background-position-y: 50%;
+    background-size: 20px;
+}
+
+/* Inputs & Selects */
+input[type="text"],
+input[type="email"],
+select.styled-select {
+    padding: 10px;
+    margin: 6px 0 16px 0;
+    width: 100%;
+    max-width: 320px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    background-color: #fff;
+    color: #333;
+    box-sizing: border-box;
+    transition: border 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+select.styled-select:focus {
+    border-color: #a98ae2;
+    outline: none;
+    box-shadow: 0 0 4px rgba(169, 138, 226, 0.4);
+}
+
+/* Submit Button */
+input[type="submit"] {
+    background-color: #a98ae2;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out, transform 0.2s ease-in-out;
+}
+
+input[type="submit"]:hover {
+    background-color: #825dc7;
+    transform: scale(1.02);
+}
+
+/* Label */
+form label {
+    font-weight: 500;
+    display: block;
+    margin-top: 10px;
+    margin-bottom: 5px;
+    color: #444;
+    font-size: 14px;
+}
+
+/* Form Container */
+.tab-content form {
+    max-width: 400px;
+    background-color: #fdfdfd;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+    margin-top: 10px;
+}
+
+.form-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh; /* adjusts how far down the form appears */
+}
+
+.error-message {
+    color: #d93025;
+    font-size: 0.95rem;
+    margin-top: 10px;
+    background-color: white;
+    padding: 10px;
+    border-radius: 4px;
+    max-width: 300px;
+    align-items: center;
+}
+
+.message {
+        color: red;
+        margin-bottom: 1rem;
+        }
+
+.success-message {
+    color: #0f9d58;
+    font-size: 0.95rem;
+    margin-top: 10px;
+    background-color: #e6f4ea;
+    padding: 10px;
+    border-radius: 4px;
+    max-width: 300px;
+    align-items: center;
+}
+</style>
+
+
+{% endblock %}
+

@@ -1,0 +1,100 @@
+
+body {
+  margin: 10px;
+  padding: 10px;
+  font-family: sans-serif;
+  background: #f9f9fb;
+  color: #333;
+  text-align: center;
+}
+
+/* Center the logo horizontally */
+.logo {
+  display: flex;
+  justify-content: left;
+  align-items: center;
+  gap: 0.1rem;
+  font-size: 2rem;
+}
+
+.logo-img {
+  width: 30px;
+  height: 30px;
+}
+
+.logo img,
+.logo span,
+.logo svg {
+  vertical-align: middle;
+}
+
+.navbar {
+  display: flex;
+  align-items: center;
+  padding: 1em 2em;
+  /* background-color: #ffffff; */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  gap: 2em;
+  font-family: sans-serif;
+}
+
+.nav-links {
+  display: flex;
+  gap: 3em;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+ 
+}
+
+.nav-links a:hover {
+  color: #6c63ff;
+}
+
+
+p {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+}
+
+.buttons a {
+  display: inline-block;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  font-weight: bold;
+  text-decoration: none;
+  margin: 0.5rem;
+}
+
+.primary {
+  background: #7f5af0;
+  color: #fff;
+}
+
+.secondary {
+  border: 2px solid #7f5af0;
+  color: #7f5af0;
+}
+
+.dashboard {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2em;
+  margin: 2em;
+}
+
+.section {
+  background-color: #ffffff;
+  padding: 1.5em;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  text-align: center;
+}
+
+.section h2 {
+  margin-bottom: 1em;
+  color: #333;
+}

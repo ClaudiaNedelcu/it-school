@@ -1,0 +1,472 @@
+{% extends "base.html" %}
+
+{% block content %}
+<header class="hero">
+  <h1>Projects</h1>
+  <p>Here you can view and manage all your projects.</p>
+</header>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="flash-messages">
+      {% for category, message in messages %}
+        <div class="flash flash-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<div class="tabs">
+  <!-- Hidden Radio Buttons -->
+  <input type="radio" name="tab" id="tab1" {% if active_tab != 'add' %}checked{% endif %}>
+  <input type="radio" name="tab" id="tab2" {% if active_tab == 'add' %}checked{% endif %}>
+  <input type="radio" name="tab" id="tab3">
+  <input type="radio" name="tab" id="tab4">
+
+  <!-- Tab Labels -->
+  <div class="tab-labels">
+    <label for="tab1">Project List</label>
+    <label for="tab2">Add Project</label>
+    <label for="tab3">Update Project</label>
+    <label for="tab4">Delete Project</label>
+  </div>
+
+  <!-- Tab 1: Project List -->
+  <div class="tab-content" id="content1">
+<div class="filter-sort-bar">
+  <form method="GET" action="{{ url_for('projects') }}" class="filter-form">
+    <label for="status">Filter by Status:</label>
+    <select name="status" id="status" class="styled-select">
+      <option value="">All</option>
+      {% for st in statuses %}
+        <option value="{{ st }}" {% if request.args.get('status') == title %}selected{% endif %}>{{ st }}</option>
+      {% endfor %}
+    </select>
+
+    <label for="sort">Sort by Project name:</label>
+    <select name="sort" id="sort" class="styled-select">
+      <option value="">None</option>
+      <option value="asc" {% if request.args.get('sort') == 'asc' %}selected{% endif %}>A-Z</option>
+      <option value="desc" {% if request.args.get('sort') == 'desc' %}selected{% endif %}>Z-A</option>
+    </select>
+
+    <input type="submit" value="Apply">
+  </form>
+
+ <form method="GET" action="{{ url_for('export_projects') }}" style="display: inline;">
+  {% if request.args.get('status') %}
+    <input type="hidden" name="status" value="{{ request.args.get('status') }}">
+  {% endif %}
+  {% if request.args.get('sort') %}
+    <input type="hidden" name="sort" value="{{ request.args.get('sort') }}">
+  {% endif %}
+  <input type="submit" value="Export CSV">
+</form>
+
+</div>
+
+    <table class="user-table" cellpadding="1" cellspacing="1">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Project Name</th>
+          <th>Status</th>
+          <th>Period</th>
+          <th>Project Type</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for project in projects %}
+        <tr>
+          <td>{{ project.id_Project }}</td>
+          <td>{{ project.project_name }}</td>
+          <td>{{ project.status }}</td>
+          <td>{{ project.period }}</td>
+          <td>{{ project.project_type }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    {% if error %}
+      <div class="error-message">{{ error }}</div>
+    {% endif %}
+  </div>
+
+  <!-- Tab 2: Add Project -->
+  <div class="tab-content" id="content2">
+    <div class="form-wrapper">
+      <form method="POST" action="/projects/add">
+        <label>Project name:</label>
+        <input type="text" name="project_name" required>
+
+        <label>Status:</label>
+        <select name="status" class="styled-select" required>
+          <option value="" disabled selected></option>
+          <option value="Open">Open</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Closed">Closed</option>
+        </select>
+
+
+        <label>Period:</label>
+        <select name="period" class="styled-select" required>
+          <option value="" disabled selected></option>
+          <option value="0-12 months">0-12 months</option>
+          <option value="12-24 months">12-24 months</option>
+          <option value="more than 24 months">more than 24 months</option>
+        </select>
+
+
+        <label>Project Type:</label>
+        <select name="project_type" class="styled-select" required>
+          <option value="" disabled selected></option>
+          <option value="New Implementation">New Implementation</option>
+          <option value="Upgrade version">Upgrade version</option>
+        </select>
+
+        <input type="submit" value="Add Project">
+
+        {% if error %}
+          <div class="error-message">{{ error }}</div>
+        {% endif %}
+      </form>
+    </div>
+  </div>
+
+  <!-- Tab 3: Update Project -->
+  <div class="tab-content" id="content3">
+    <div class="form-wrapper">
+      <form method="POST" action="/projects/update">
+        <label>Project to update:</label>
+        <select name="project_name" class="styled-select" required>
+        <option value="" disabled selected>Choose a project</option>
+        {% for project in projects %}
+            <option value="{{ project.project_name }}">{{ project.project_name }} </option>
+        {% endfor %}
+            </select>
+
+        <label>Status:</label>
+        <select name="status" class="styled-select" >
+          <option value="" disabled selected></option>
+          <option value="Open">Open</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Closed">Closed</option>
+        </select>
+
+
+        <label>Period:</label>
+        <select name="period" class="styled-select">
+          <option value="" disabled selected></option>
+          <option value="0-12 months">0-12 months</option>
+          <option value="12-24 months">12-24 months</option>
+          <option value="more than 24 months">more than 24 months</option>
+        </select>
+
+        <label>Project Type:</label>
+        <select name="project_type" class="styled-select">
+          <option value="" disabled selected></option>
+          <option value="New Implementation">New Implementation</option>
+          <option value="Upgrade version">Upgrade version</option>
+        </select>
+
+
+        <input type="submit" value="Update Project">
+
+        {% if error %}
+          <div class="error-message">{{ error }}</div>
+        {% endif %}
+      </form>
+    </div>
+  </div>
+
+  <!-- Tab 4: Delete Project-->
+  <div class="tab-content" id="content4">
+    <div class="form-wrapper">
+      <form method="POST" action="/projects/delete">
+        <label for="project_name">Select project to delete:</label>
+        <select name="project_name" class="styled-select" required>
+        <option value="" disabled selected>Choose a project</option>
+        {% for project in projects %}
+            <option value="{{ project.project_name }}">{{ project.project_name }} </option>
+        {% endfor %}
+            </select>
+        <input type="submit" value="Delete Project">
+
+        {% if error %}
+          <div class="error-message">{{ error }}</div>
+        {% endif %}
+
+        {% if success_message %}
+          <div class="success-message">{{ success_message }}</div>
+        {% endif %}
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+<style>
+    .tabs input[type="radio"] {
+        display: none;
+    }
+
+    .tab-labels {
+        margin-bottom: 10px;
+    }
+
+    .tab-labels label {
+        padding: 10px 15px;
+        background: #dcd8e2;
+        border: 1px solid #ccc;
+        cursor: pointer;
+        margin-right: 5px;
+        border-radius: 5px 5px 0 0;
+    }
+
+    .tab-labels label:hover {
+        background: #ddd;
+    }
+
+    .tab-content {
+        display: none;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-top: 1px solid #ccc;
+        background-color: white;
+        border-radius: 0 5px 5px 5px;
+    }
+
+    #tab1:checked ~ .tab-labels label[for="tab1"],
+    #tab2:checked ~ .tab-labels label[for="tab2"],
+    #tab3:checked ~ .tab-labels label[for="tab3"],
+    #tab4:checked ~ .tab-labels label[for="tab4"] {
+        background: #fff;
+        border-bottom: 1px solid #fff;
+    }
+
+    #tab1:checked ~ #content1,
+    #tab2:checked ~ #content2,
+    #tab3:checked ~ #content3,
+    #tab4:checked ~ #content4 {
+        display: block;
+    }
+
+    input[type="text"], input[type="submit"] {
+        padding: 8px;
+        margin-top: 5px;
+        margin-bottom: 10px;
+        width: 100%;
+        max-width: 300px;
+    }
+
+    input[type="submit"] {
+        background-color: #a98ae2;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    input[type="submit"]:hover {
+        background-color: #825dc7;
+    }
+
+   .user-table {
+  width: 80%;
+  margin: 2rem auto;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+  text-align: left;
+    }
+
+    .user-table thead {
+  background-color: #a98ae2;
+  text-align: left;
+    }
+
+    .user-table th, .user-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #e0e0e0;
+    }
+
+    .user-table tr:hover {
+  background-color: #f0f0f0;
+    }
+
+    .user-table th {
+  font-weight: 600;
+  color: #333;
+    }
+
+    .user-table td {
+  color: #555;
+    }
+
+select.styled-select {
+    padding: 8px;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    width: 100%;
+    max-width: 300px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+    font-size: 14px;
+    color: #333;
+    appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg fill='gray' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+    background-repeat: no-repeat;
+    background-position-x: 95%;
+    background-position-y: 50%;
+    background-size: 20px;
+}
+
+/* Inputs & Selects */
+input[type="text"],
+input[type="email"],
+select.styled-select {
+    padding: 10px;
+    margin: 6px 0 16px 0;
+    width: 100%;
+    max-width: 320px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    background-color: #fff;
+    color: #333;
+    box-sizing: border-box;
+    transition: border 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+select.styled-select:focus {
+    border-color: #a98ae2;
+    outline: none;
+    box-shadow: 0 0 4px rgba(169, 138, 226, 0.4);
+}
+
+/* Submit Button */
+input[type="submit"] {
+    background-color: #a98ae2;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out, transform 0.2s ease-in-out;
+}
+
+input[type="submit"]:hover {
+    background-color: #825dc7;
+    transform: scale(1.02);
+}
+
+/* Label */
+form label {
+    font-weight: 500;
+    display: block;
+    margin-top: 10px;
+    margin-bottom: 5px;
+    color: #444;
+    font-size: 14px;
+}
+
+/* Form Container */
+.tab-content form {
+    max-width: 400px;
+    background-color: #fdfdfd;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+    margin-top: 10px;
+}
+
+.form-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh; /* adjusts how far down the form appears */
+}
+
+.error-message {
+    color: #d93025;
+    font-size: 0.95rem;
+    margin-top: 10px;
+    background-color: white;
+    padding: 10px;
+    border-radius: 4px;
+    max-width: 300px;
+    align-items: center;
+}
+
+.message {
+        color: red;
+        margin-bottom: 1rem;
+        }
+
+.success-message {
+    color: #0f9d58;
+    font-size: 0.95rem;
+    margin-top: 10px;
+    background-color: #e6f4ea;
+    padding: 10px;
+    border-radius: 4px;
+    max-width: 300px;
+    align-items: center;
+}
+
+
+.filter-sort-sidebar {
+  width: 250px;
+  background-color: #fdfdfd;
+  padding: 16px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.filter-form {
+  display: flex;
+  align-self: center;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filter-form label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #444;
+}
+
+.filter-form select,
+.filter-form input[type="submit"] {
+  font-size: 14px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  max-width: 100%;
+}
+
+.filter-form input[type="submit"] {
+  background-color: #a98ae2;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.filter-form input[type="submit"]:hover {
+  background-color: #825dc7;
+  transform: scale(1.02);
+}
+
+</style>
+
+{% endblock %}
