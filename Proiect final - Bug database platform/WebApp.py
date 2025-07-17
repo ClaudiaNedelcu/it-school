@@ -6,6 +6,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask import request
 from io import StringIO
 import csv
+import io, base64
+from PIL import Image, ImageDraw, ImageFont
 
 
 app = Flask(__name__) # start the application and sets the db for sqlalchemy
@@ -41,6 +43,7 @@ def home():
 
 @app.route("/overview", endpoint="overview") # when accessing http://localhost:5000/overview the following functiion will be executed
 def get_overview(): # an overview function of the data available in the db
+    
     project_counts = {
         "Open": Project.query.filter_by(status="Open").count(),
         "In Progress": Project.query.filter_by(status="In Progress").count(),
@@ -65,12 +68,49 @@ def get_overview(): # an overview function of the data available in the db
         "users": sum(user_counts.values())
     }
 
+    
+    # Generate charts
+    def draw_bar_chart(data, title, colors):
+        width, height = 300, 200
+        img = Image.new('RGB', (width, height), color='white')
+        draw = ImageDraw.Draw(img)
+
+        bar_width = 40
+        spacing = 20
+        max_value = max(data.values()) or 1
+        margin = 30
+
+        # Draw title
+        draw.text((10, 5), title, fill='black')
+
+        # Draw bars
+        for i, (label, value) in enumerate(data.items()):
+            bar_height = int((value / max_value) * (height - 70))
+            x0 = margin + i * (bar_width + spacing)
+            y0 = height - margin
+            x1 = x0 + bar_width
+            y1 = y0 - bar_height
+
+            draw.rectangle([x0, y1, x1, y0], fill=colors[i % len(colors)])
+            draw.text((x0, y0 + 10), label, fill='black')
+
+    # Convert to base64
+        buffer = io.BytesIO()
+        img.save(buffer, format='PNG')
+        buffer.seek(0)
+        return base64.b64encode(buffer.getvalue()).decode('utf-8')
+    
+    project_chart = draw_bar_chart(project_counts, "Projects", ["#8074EC", "#A093EB", "#764CEB"])
+    bug_chart = draw_bar_chart(bug_counts, "Bugs", ["#AEA1CC", "#EAE8F1", "#6746C2"])
+
     return render_template(
         "overview.html",
         projects=project_counts,
         bugs=bug_counts,
         users=user_counts,
-        totals=totals
+        totals=totals,
+        project_chart=project_chart,
+        bug_chart=bug_chart
     )
 
 
