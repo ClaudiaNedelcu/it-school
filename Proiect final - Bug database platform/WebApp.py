@@ -1,3 +1,5 @@
+#importing all the needed modules/classes
+
 from flask import Flask, render_template
 from flask import redirect, Response
 from flask_sqlalchemy import SQLAlchemy
@@ -6,12 +8,11 @@ from io import StringIO
 import csv
 
 
-
-app = Flask(__name__) # start the application
+app = Flask(__name__) # start the application and sets the db for sqlalchemy
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///BugsyDB.db"
 db = SQLAlchemy(app)
 
-class User(db.Model):
+class User(db.Model): #creates the user class and db that will be used for users
     id_User = db.Column(db.Integer, primary_key = True)
     username = db.Column(db.String(50))
     email_address = db.Column(db.String(50))
@@ -19,7 +20,7 @@ class User(db.Model):
     first_name = db.Column(db.String(50))
     job_title = db.Column(db.String(50))
 
-class Bug(db.Model):
+class Bug(db.Model): #creates the bug class and db that will be used for bugs
     id_Bug = db.Column(db.Integer, primary_key = True)
     bug_code = db.Column(db.String(50))
     status = db.Column(db.String(50))
@@ -27,7 +28,7 @@ class Bug(db.Model):
     defect_clasification = db.Column(db.String(50))
     defect_origin = db.Column(db.String(50))
     
-class Project(db.Model):
+class Project(db.Model): #creates the project class and db that will be used for projects
     id_Project = db.Column(db.Integer, primary_key = True)
     project_name = db.Column(db.String(50))
     status = db.Column(db.String(50))
@@ -35,12 +36,11 @@ class Project(db.Model):
     project_type = db.Column(db.String(50))
 
 @app.route("/") # when accessing http://localhost:5000/ the following functiion will be executed
-
 def home():
     return render_template("index.html")
 
-@app.route("/overview", endpoint="overview")
-def get_overview():
+@app.route("/overview", endpoint="overview") # when accessing http://localhost:5000/overview the following functiion will be executed
+def get_overview(): # an overview function of the data available in the db
     project_counts = {
         "Open": Project.query.filter_by(status="Open").count(),
         "In Progress": Project.query.filter_by(status="In Progress").count(),
@@ -73,12 +73,20 @@ def get_overview():
         totals=totals
     )
 
-@app.route("/projects", methods = ["GET"],  endpoint="projects")
-def get_projects():
+
+
+"""
+PROJECTS SECTION
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+"""
+
+
+@app.route("/projects", methods = ["GET"],  endpoint="projects") # when accessing http://localhost:5000/projects the following functiion will be executed
+def get_projects(): # a list with all projects from db will be visible, along with filter&sort options and export csv function
     project_filter = request.args.get("status", default=None)
     sort_order = request.args.get("sort", default=None)
 
-    query = Project.query
+    query = Project.query  #creates a custom query which will take into account the filter&sort functions
 
     if project_filter=="Open":
         query = query.filter_by(status=project_filter)
@@ -160,7 +168,7 @@ def update_projects():
 def delete_projects():
     if request.method == "POST":
         project_name = request.form.get("project_name")
-
+        
         if not project_name:
             projects = Project.query.all()
             error = "Please enter the Project name."
@@ -168,6 +176,7 @@ def delete_projects():
 
         existing_project = Project.query.filter_by(project_name=project_name).first()
 
+        # Check if project already exists
         if existing_project:
             db.session.delete(existing_project)
             db.session.commit()
@@ -184,12 +193,13 @@ def delete_projects():
 
 
 @app.route("/projects/export", methods=["GET"])
-def export_projects():
+def export_projects(): 
     status = request.args.get("status", default=None)
     sort_order = request.args.get("sort", default=None)
 
     query = Project.query
 
+    # Check if there are any filters or statuses in order to export the data taking those into account
     if status:
         query = query.filter_by(status=status)
 
@@ -218,13 +228,18 @@ def export_projects():
     )
 
 
+"""
+BUGS SECTION
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+"""
+
 
 @app.route("/bugs", methods = ["GET"],  endpoint="bugs")
-def get_bugs():
+def get_bugs(): # a list with all bugs from db will be visible, along with filter&sort options and export csv function
     bugs_filter = request.args.get("status", default=None)
     sort_order = request.args.get("sort", default=None)
 
-    query = Bug.query
+    query = Bug.query  #creates a custom query which will take into account the filter&sort functions
 
     if bugs_filter=="Open":
         query = query.filter_by(status=bugs_filter)
@@ -338,6 +353,7 @@ def export_bugs():
 
     query = Bug.query
 
+    # Check if there are any filters or statuses in order to export the data taking those into account
     if status:
         query = query.filter_by(status=status)
 
@@ -366,12 +382,17 @@ def export_bugs():
     )
 
 
+"""
+USERS SECTION
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+"""
+
 @app.route("/users", methods = ["GET"], endpoint="users")
 def get_users():
     job_filter = request.args.get("job_title", default=None)
     sort_order = request.args.get("sort", default=None)
 
-    query = User.query
+    query = User.query  #creates a custom query which will take into account the filter&sort functions
 
     if job_filter:
         query = query.filter_by(job_title=job_filter)
@@ -485,6 +506,7 @@ def export_users():
 
     query = User.query
 
+    # Check if there are any filters or statuses in order to export the data taking those into account
     if job_filter:
         query = query.filter_by(job_title=job_filter)
 
