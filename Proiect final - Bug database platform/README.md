@@ -19,4 +19,8 @@ Installation
 There is no need to install anything else. However, make sure that you have all the files needed in the correct located folders.
 
 
+
+Have fun :)
+
+
 ///
